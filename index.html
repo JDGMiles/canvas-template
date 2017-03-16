@@ -1,0 +1,198 @@
+<!DOCTYPE html><html><head><title>Freejam Regent</title>
+
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="shortcut icon" href="favicon.ico">
+<meta name="viewport" content="width=550, initial-scale=1">
+
+</head>
+
+<body>
+	<center>
+
+		<table style="position:absolute; left:10px; top:10px; background-color:black;">
+			<td>
+				<a href="#popup1"><img title="Information" src="../jdgmiles.github.io/questionmark.png" style="width:60px; height:60px"></a><br>
+				<a href="https://twitter.com/jimdgmiles" target=blank_><img title="James Miles on Twitter" src="../jdgmiles.github.io/twitter.png" style="width:60px; height:60px"></a><br>
+				<a href="http://jdgmiles.github.io/" target="_blank"><img title="Projects Page" src="../jdgmiles.github.io/jdgm.png" style="width:60px; height:60px"></a><br>
+			</td>
+		</table>
+
+		<div id="popup1" class="overlay">
+			<div class="popup" style="text-align:center">
+				<a class="close" style="right: 30px;" href="#">&times;</a>
+				<div style="font-family:Georgia; color:white; text-decoration:underline; font-size:55px">Freejam Regent</div><br>
+				<span style="font-family:Georgia; font-size:45px; color:white;">A handy animation to clarify Freejam Regent&rsquo;s interaction with unsummon effects.<br></span><br>
+			</div>
+		</div>
+
+		<br>
+		<canvas id="canvas" style="padding:0px 80px 0px 80px;"></canvas>
+
+  </center>
+</body>
+</html>
+
+<script type="text/javascript">
+var field={width:780, height:500};
+var fieldcolor="#DCEBFF";
+
+var sprite=new Image();
+sprite.src="Freejam Regent.jpg";
+
+var jam=new Image();
+jam.src="Jam.png";
+
+var reveal=0;
+var runup=0;
+
+var unsummon=new Image();
+unsummon.src="Unsummon.jpg";
+
+var xpos=0;
+var ypos=0;
+var xposstart=150+field.width/2-265/2;
+var yposstart=60+field.height/2-370/2;
+
+var fps=65;
+var time=0;
+var leadin=0;
+var duration=0.6*fps;
+
+var settings=[1,0,0,1,0,0];
+
+var start=[1,0,0,1,0,0];
+
+var end=[1,0,0.4,0.3,0,0];
+
+var canvas = document.getElementById("canvas"),
+    ctx = canvas.getContext("2d");
+
+canvas.width = field.width;
+canvas.height = field.height;
+
+function playcard(){
+
+	for(i=0; i<6; i++){
+		settings[i]=(duration-time)*start[i]/duration + time*end[i]/duration;
+	}
+
+	ctx.fillStyle=fieldcolor;
+	ctx.fillRect(0, 0, field.width, field.height);
+
+	xpos=xposstart-(settings[2])*370;
+	ypos=yposstart+(1-settings[3])*370;
+
+
+	ctx.save();
+	ctx.translate(xpos-time*2.2,ypos-230*Math.sin(Math.PI-time*Math.PI/(1.055*duration)));
+	ctx.transform(settings[0],settings[1],settings[2],settings[3],settings[4],settings[5]);
+	ctx.drawImage(sprite, 0, 0);
+	ctx.restore();
+
+	if(leadin>fps*0.7 && time<duration+1){time++;}
+	else{leadin++;}
+
+	if(time<duration+1){setTimeout(playcard, 1000/fps);}
+	else{time=0; setTimeout(summonjam, 160);}
+
+}
+
+function summonjam(){
+
+	ctx.fillStyle=fieldcolor;
+	ctx.fillRect(0, 0, field.width, field.height);
+
+	ctx.save();
+	ctx.translate(xpos-(duration)*2.2,ypos-230*Math.sin(Math.PI-(duration)*Math.PI/(1.055*duration)));
+	ctx.transform(settings[0],settings[1],settings[2],settings[3],settings[4],settings[5]);
+	ctx.drawImage(sprite, 0, 0);
+	ctx.restore();
+
+	runup=2;
+
+	if(time>=runup && reveal<491){reveal=490*Math.sin((time-runup)/25);}
+
+	ctx.drawImage(jam, 0, 0, 219, reveal, 263, 466-480*Math.sin(time/20), 217, reveal);
+
+	if(time<fps*0.676){time++; setTimeout(summonjam, 1000/fps);}
+	else{time=0; setTimeout(bounce, 500);}
+
+
+}
+
+function bounce(){
+
+	ctx.fillStyle=fieldcolor;
+	ctx.fillRect(0, 0, field.width, field.height);
+
+	ctx.save();
+	ctx.translate(xpos-(duration)*2.2,ypos-230*Math.sin(Math.PI-(duration)*Math.PI/(1.055*duration)));
+	ctx.transform(settings[0],settings[1],settings[2],settings[3],settings[4],settings[5]);
+	ctx.drawImage(sprite, 0, 0);
+	ctx.restore();
+
+	ctx.drawImage(jam, 0, 0, 219, reveal, 263, 466-480*Math.sin(Math.floor(fps*0.676+1)/20), 217, reveal);
+
+	ctx.drawImage(unsummon, 510, 15*time-214);
+
+	if(time<0.33*fps){time++; setTimeout(bounce, 1000/fps);}
+	else{time=Math.floor(fps*0.676+1); setTimeout(returnjam, 400);}
+
+}
+
+function returnjam(){
+
+	ctx.fillStyle=fieldcolor;
+	ctx.fillRect(0, 0, field.width, field.height);
+
+	ctx.save();
+	ctx.translate(xpos-(duration)*2.2,ypos-230*Math.sin(Math.PI-(duration)*Math.PI/(1.055*duration)));
+	ctx.transform(settings[0],settings[1],settings[2],settings[3],settings[4],settings[5]);
+	ctx.drawImage(sprite, 0, 0);
+	ctx.restore();
+
+	runup=2;
+
+	if(time>=runup && reveal<491){reveal=490*Math.sin((time-runup)/25);}
+
+	ctx.drawImage(jam, 0, 0, 219, reveal, 263, 466-480*Math.sin(time/20), 217, reveal);
+	ctx.drawImage(unsummon, 510, 15*Math.floor(fps*0.33+1)-214);
+
+	if(time>0){time--; setTimeout(returnjam, 1000/fps);}
+	else{time=duration; setTimeout(returndragon, 200);}
+
+}
+
+function returndragon(){
+
+	for(i=0; i<6; i++){
+		settings[i]=(duration-time)*start[i]/duration + time*end[i]/duration;
+	}
+
+	ctx.fillStyle=fieldcolor;
+	ctx.fillRect(0, 0, field.width, field.height);
+
+	xpos=xposstart-(settings[2])*370;
+	ypos=yposstart+(1-settings[3])*370;
+
+
+	ctx.save();
+	ctx.translate(xpos-time*2.2,ypos-230*Math.sin(Math.PI-time*Math.PI/(1.055*duration)));
+	ctx.transform(settings[0],settings[1],settings[2],settings[3],settings[4],settings[5]);
+	ctx.drawImage(sprite, 0, 0);
+	ctx.restore();
+
+	ctx.drawImage(unsummon, 510+(duration-time)*15, 15*(Math.floor(fps*0.33+1))-214);
+
+	if(time>0){time--; setTimeout(returndragon, 1000/fps);}
+	else{
+		reveal=0;
+		leadin=0;
+		setTimeout(playcard, 1);
+	}
+
+}
+
+playcard();
+
+</script>
